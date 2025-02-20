@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,4 +5,43 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model questionpaper {
+  qpid    String         @id @default(uuid()) // Unique Question Paper ID
+  name    String
+  questions questiondetails[]
+  studentanswers studentanswers[]
+}
+
+model questiondetails {
+  qd_id    String        @id @default(uuid()) 
+  qpid     String        // Foreign key to QuestionPaper
+  q_no     Int           // Question number for indexing
+  question String
+  answer   String
+  evaluationCriteria String
+
+  questionPaper questionpaper @relation(fields: [qpid], references: [qpid])
+}
+
+model Student {
+  sid      String        @id @default(uuid()) 
+  name     String
+  password String
+  answers  studentanswers[]
+}
+
+model studentanswers {
+  sa_id    String        @id @default(uuid()) 
+  qpid     String        // Foreign key to QuestionPaper
+  sid      String        // Foreign key to Student
+  q_no     Int           // Question number for indexing
+  answer   String
+  grade    Float         @default(0) // Stores the grade assigned to this answer
+
+  questionPaper questionpaper @relation(fields: [qpid], references: [qpid])
+  student       Student       @relation(fields: [sid], references: [sid])
+    @@map("studentanswers")
+     @@unique([qpid, sid, q_no])
 }

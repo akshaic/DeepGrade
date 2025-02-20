@@ -4,12 +4,14 @@ import { useState } from "react";
 
 export default function UploadPage() {
   const [file, setFile] = useState(null);
-  const [transcribedText, setTranscribedText] = useState("");
+  const [message, setMessage] = useState("");
 
   const handleUpload = async (e) => {
     e.preventDefault();
+    setMessage(""); // Reset message before uploading
+
     if (!file) {
-      alert("Please select a PDF file first.");
+      setMessage("Please select a PDF file first.");
       return;
     }
 
@@ -17,26 +19,27 @@ export default function UploadPage() {
     formData.append("pdf", file);
 
     try {
-      const res = await fetch("/api/upload", {
+      const res = await fetch("/api/uploadanswer", {
         method: "POST",
         body: formData,
       });
 
       const data = await res.json();
+
       if (res.ok) {
-        setTranscribedText(data.transcribed); // Display transcribed text
+        setMessage("✅ Success: Answers inserted successfully!");
       } else {
-        alert(data.error || "Upload failed.");
+        setMessage(`❌ Error: ${data.error || "Something went wrong"}`);
       }
     } catch (error) {
       console.error("Error uploading file:", error);
-      alert("An error occurred while uploading.");
+      setMessage("❌ Error: Failed to upload the file.");
     }
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
-      <h1 className="text-2xl font-bold mb-4">Upload a PDF and Get Transcription</h1>
+      <h1 className="text-2xl font-bold mb-4">Upload a PDF</h1>
 
       <form onSubmit={handleUpload} className="bg-white p-6 rounded-lg shadow-md">
         <input
@@ -53,10 +56,9 @@ export default function UploadPage() {
         </button>
       </form>
 
-      {transcribedText && (
-        <div className="mt-4 p-4 bg-gray-200 text-black rounded w-full max-w-2xl">
-          <h2 className="font-bold">Transcribed Text:</h2>
-          <p className="text-sm">{transcribedText}</p>
+      {message && (
+        <div className={`mt-4 p-4 rounded w-full max-w-2xl ${message.startsWith("✅") ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800"}`}>
+          {message}
         </div>
       )}
     </div>
