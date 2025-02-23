@@ -1,8 +1,4 @@
 "use client"
-import { Button } from "@/components/ui/button"
-import Toggler from "@/components/ui/toggler"
-import Signin from "@/components/signinoutbtn"
-import Signupform from "@/components/Signupform"
 import { useEffect } from "react"
 import gsap from 'gsap'
 import Drawer from '@/components/Drawer'
