@@ -28,10 +28,10 @@ export async function POST(req) {
         role:role // Store hashed password
       },
     });
-
+     let newStudent="";
     console.log(role);
     if(role=='Student'){
-        const newStudent=await prisma.student.create({
+         newStudent=await prisma.student.create({
             data:{
                 email,
                 roll:roll,
@@ -39,7 +39,7 @@ export async function POST(req) {
         })
     }
 
-    return NextResponse.json({ message: "User created successfully", user: newUser }, { status: 201 });
+    return NextResponse.json({ message: "User created successfully", user: newUser,newStuedent:newStudent}, { status: 201 });
   } catch (error) {
     return NextResponse.json({ message: "Error creating user" +error}, { status: 500 });
   }
