@@ -1,3 +1,47 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@keyframes textAnimation {
+    0%{
+      stroke-dashoffset: 400;
+    }
+    80%{
+      fill: transparent;
+    }
+    100%{
+      fill: white;
+      stroke-dashoffset:0;
+    }
+  }
+  
+  @keyframes subanimation {
+    0% {
+      fill: transparent;
+      stroke: #d4a373;
+      stroke-width: 2px;
+      transform: scale(0.8);
+      opacity: 0;
+    }
+  
+    100% {
+      fill: #d4a373;
+      stroke: transparent;
+      transform: scale(1);
+    }
+  }
+  
+  
+  
+  @layer base {}
+  
+  
+  
+  @layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+}
+  

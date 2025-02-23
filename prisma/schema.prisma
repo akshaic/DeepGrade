@@ -7,6 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+id Int @id @default(autoincrement())
+email String @unique
+password String
+firstName String
+lastName String
+role String
+}
 model questionpaper {
   qpid    String         @id @default(uuid()) // Unique Question Paper ID
   name    String
@@ -27,21 +35,21 @@ model questiondetails {
 
 model Student {
   sid      String        @id @default(uuid()) 
-  name     String
-  password String
+  email     String      @unique
+  roll      String     @unique
   answers  studentanswers[]
 }
 
 model studentanswers {
   sa_id    String        @id @default(uuid()) 
   qpid     String        // Foreign key to QuestionPaper
-  sid      String        // Foreign key to Student
+  roll     String        // Foreign key to Student
   q_no     Int           // Question number for indexing
   answer   String
   grade    Float         @default(0) // Stores the grade assigned to this answer
 
   questionPaper questionpaper @relation(fields: [qpid], references: [qpid])
-  student       Student       @relation(fields: [sid], references: [sid])
+  student       Student       @relation(fields: [roll], references: [roll])
     @@map("studentanswers")
-     @@unique([qpid, sid, q_no])
+    @@unique([qpid, roll, q_no])
 }
