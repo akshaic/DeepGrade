@@ -1,18 +1,21 @@
 "use client"
 import React, { useState } from 'react'
 import {Input} from '../../components/ui/input'
-
+import UploadPage from '../../components/Evaluploader'
 const page = () => {
   const [name,setname]=useState("");
-  const handleSubmit=(e)=>{
+  const [qpid,setqpid]=useState("");
+  const handleSubmit= async(e)=>{
     const data=e.target.qname.value
     setname(data)
-    const res=fetch('/api/questionpaper',{
+    const res= await fetch('/api/questionpaper',{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({name:e.target.qname.value})
     })
-    console.log(res)
+    const dres= await res.json()
+    console.log("response"+dres)
+    setqpid(dres);
   }
   return (
     <div style={{display:'flex',width:'100vw',height:'100vh',backgroundColor:'#e9edc9',justifyContent:'center',alignItems:'center'}}>
@@ -24,9 +27,9 @@ const page = () => {
                 {name==""?<form style={{display:'flex'}}onSubmit={handleSubmit}>
                 <Input id="qname" placeholder="enter question paper name" type="text"/>
                 <button type='submit'>Create</button>
-                </form>:<div style={{display:'flex',flexDirection:'column',gap:'5vh'}}>{name}
-                    
-        <button style={{border:'2px solid black',padding:'2vw',borderRadius:'30px'}}> upload Evaluation Criteria</button>
+                </form>:<div style={{display:'flex',flexDirection:'column',gap:'5vh'}}>{name+qpid}
+
+                    <UploadPage qpid={qpid}/>
                   </div>}
                 
               </div>
