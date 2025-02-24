@@ -30,7 +30,7 @@ export async function POST(req) {
             mimeType: "application/pdf",
           },
         },
-        "Transcribe the answer sheet and return only a valid JSON array with fields: qpid, sid, q_no (question number), answer, and grade (set to 1). No explanations, only JSON output.",
+        "Transcribe the answer sheet and return only a valid JSON array with fields: qpid, roll, q_no (question number), answer, and grade (set to 1). No explanations, only JSON output.",
       ]);
 
       let responseText = result?.response?.text();
