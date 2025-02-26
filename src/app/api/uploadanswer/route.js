@@ -30,7 +30,7 @@ export async function POST(req) {
             mimeType: "application/pdf",
           },
         },
-        "Transcribe the answer sheet and return only a valid JSON array with fields: qpid, roll, q_no (question number), answer, and grade (set to 1). No explanations, only JSON output.",
+        "Transcribe the answer sheet and return only a valid JSON array with fields: name(question paper name in lowercase), roll, q_no (question number data type int), answer, and grade(give 5 data type is float ),roll-turn to lowercase if uppercase. No explanations, only JSON output.",
       ]);
 
       let responseText = result?.response?.text();
@@ -58,19 +58,19 @@ export async function POST(req) {
     try {
       // Insert data into the database
       await prisma.studentanswers.createMany({
-        data: extractedData.map(({ q_no, answer }) => ({
-          qpid: "1",
-          sid: "1",
+        data: extractedData.map(({ q_no,grade,answer,roll,name}) => ({
           q_no,
           answer,
-          grade: 1,
+          grade,
+          roll,
+          name
         })),
       });
 
       return NextResponse.json({ message: "Answers inserted successfully" });
     } catch (error) {
-      console.error("❌ Database Insertion Error:", error);
-      return NextResponse.json({ error: "Database insertion failed" }, { status: 500 });
+    
+      return NextResponse.json({ error: "Database insertion failed"+error }, { status: 500 });
     }
   } catch (error) {
     console.error("❌ Processing Error:", error);

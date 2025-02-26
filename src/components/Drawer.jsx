@@ -34,7 +34,7 @@ const Drawer = () => {
           </button>
             <SignupFormDemo/>
           <div className="w-full h-16 rounded-b-full absolute -top-8"></div>
-          <p className="text-center text-black text-lg mt-8">Welcome to the Drawer!</p>
+        
         </div>
       </motion.div>
     </div>

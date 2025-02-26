@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export default function UploadPage({qpid}) {
+export default function UploadPage({name}) {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
 
@@ -17,7 +17,7 @@ export default function UploadPage({qpid}) {
 
     const formData = new FormData();
     formData.append("pdf", file);
-    formData.append("qpid", qpid); 
+    formData.append("name", name); 
 
     try {
       const res = await fetch("/api/uploadevalc", {
@@ -39,7 +39,7 @@ export default function UploadPage({qpid}) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+    <div className="flex flex-col items-center justify-center bg-gray-100 p-6 " style={{borderRadius:'30px'}}>
       <h1 className="text-2xl font-bold mb-4">Upload a PDF</h1>
 
       <form onSubmit={handleUpload} className="bg-white p-6 rounded-lg shadow-md">

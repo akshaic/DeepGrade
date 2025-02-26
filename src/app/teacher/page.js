@@ -11,7 +11,7 @@ const page = () => {
     const res= await fetch('/api/questionpaper',{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({name:e.target.qname.value})
+      body:JSON.stringify({name:e.target.qname.value,password:e.target.password.value})
     })
     const dres= await res.json()
     console.log("response"+dres)
@@ -26,10 +26,11 @@ const page = () => {
               <div style={{width:'30vw',padding:'5vw',justifyContent:'center',display:'flex',gap:'2vw'}}>
                 {name==""?<form style={{display:'flex'}}onSubmit={handleSubmit}>
                 <Input id="qname" placeholder="enter question paper name" type="text"/>
+                <Input id="password" placeholder="enter password" type="password"/>
                 <button type='submit'>Create</button>
                 </form>:<div style={{display:'flex',flexDirection:'column',gap:'5vh'}}>{name+qpid}
 
-                    <UploadPage qpid={qpid}/>
+                    <UploadPage name={name}/>
                   </div>}
                 
               </div>

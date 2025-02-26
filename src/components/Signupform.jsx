@@ -26,7 +26,7 @@ export default function SignupFormDemo() {
       lastname:e.target.lastname.value,
       email:e.target.email.value,
       password:e.target.password.value,
-      roll:e.target.roll.value,
+      roll:e.target?.roll?.value,
       role:role
     };
     try{
@@ -103,7 +103,7 @@ export default function SignupFormDemo() {
             {"Student"==role?
             <LabelInputContainer className="mb-4">
             <Label htmlFor="email">Roll number</Label>
-            <Input id="roll" placeholder="projectmayhem@fc.com" type="text" />
+            <Input id="roll" placeholder="mdl22cs" type="text" />
           </LabelInputContainer>
             :<></>}
           </div>

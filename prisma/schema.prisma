@@ -17,20 +17,21 @@ role String
 }
 model questionpaper {
   qpid    String         @id @default(uuid()) // Unique Question Paper ID
-  name    String
+  name    String         @unique
+  password String
   questions questiondetails[]
   studentanswers studentanswers[]
 }
 
 model questiondetails {
   qd_id    String        @id @default(uuid()) 
-  qpid     String        // Foreign key to QuestionPaper
+  name     String        // Foreign key to QuestionPaper
   q_no     Int           // Question number for indexing
   question String
   answer   String
   evaluationCriteria String
 
-  questionPaper questionpaper @relation(fields: [qpid], references: [qpid])
+  questionPaper questionpaper @relation(fields: [name], references: [name])
 }
 
 model Student {
@@ -42,14 +43,14 @@ model Student {
 
 model studentanswers {
   sa_id    String        @id @default(uuid()) 
-  qpid     String        // Foreign key to QuestionPaper
+  name     String        // Foreign key to QuestionPaper
   roll     String        // Foreign key to Student
   q_no     Int           // Question number for indexing
   answer   String
   grade    Float         @default(0) // Stores the grade assigned to this answer
 
-  questionPaper questionpaper @relation(fields: [qpid], references: [qpid])
+  questionPaper questionpaper @relation(fields: [name], references: [name])
   student       Student       @relation(fields: [roll], references: [roll])
     @@map("studentanswers")
-    @@unique([qpid, roll, q_no])
+    @@unique([name, roll, q_no])
 }

@@ -11,8 +11,8 @@ export async function POST(req) {
     // Extract PDF from request
     const formData = await req.formData();
     const file = formData.get("pdf");
-    const qpid =  await formData.get("qpid");
-    console.log("qpid is "+qpid)
+    const name =  await formData.get("name");
+  
     if (!file) {
       return NextResponse.json({ error: "No PDF uploaded" }, { status: 400 });
     }
@@ -31,7 +31,7 @@ export async function POST(req) {
             mimeType: "application/pdf",
           },
         },
-        `Transcribe the answer evaluation  sheet and return only a valid JSON array with fields: qpid,q_no (question number), question,answer, and evaluationCriteria. all datatype are string except q_no qpid is ${qpid}  No explanations, only JSON output.`,
+        `Transcribe the answer evaluation  sheet and return only a valid JSON array with fields: name,q_no (question number), question,answer, and evaluationCriteria. all datatype are string except q_no, name is ${name}  No explanations, only JSON output.`,
       ]);
 
       let responseText = result?.response?.text();
@@ -46,7 +46,7 @@ export async function POST(req) {
       extractedData = JSON.parse(responseText);
     } catch (error) {
       console.error("❌ Gemini API Error:", error);
-      return NextResponse.json({ error: "Gemini API failed" }, { status: 500 });
+      return NextResponse.json({ error: "Gemini API failed" +error}, { status: 500 });
     }
 
     console.log("📜 Extracted Data:", extractedData);
@@ -60,7 +60,7 @@ export async function POST(req) {
       // Insert data into the database
       await prisma.questiondetails.createMany({
         data: extractedData.map(({ q_no,question,answer,evaluationCriteria}) => ({
-          qpid:qpid,
+          name:name,
           q_no,
           question,
           answer,
