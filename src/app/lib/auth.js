@@ -1,6 +1,6 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from "@prisma/client";
-
+import bcrypt from "bcrypt"
 const prisma = new PrismaClient();
 
 export const authOptions = {
@@ -14,15 +14,20 @@ export const authOptions = {
             async authorize(credentials) {
                 if (!credentials) return null;
 
-                const user = await prisma.user.findFirst({
-                    where: {
-                        email: credentials.username,
-                        password: credentials.password,
-                    },
-                });
-
-                if (!user) return null;
-
+                const user = await prisma.user.findUnique({
+                    where: { email: credentials.username },
+                  });
+          
+                  if (!user) {
+                    throw new Error("User not found");
+                  }
+          
+                  // Compare entered password with hashed password
+                  const isValid = await bcrypt.compare(credentials.password, user.password);
+          
+                  if (!isValid) {
+                    throw new Error("Invalid credentials");
+                  }
                 return {
                     id: user.id.toString(),
                     email: user.email,
