@@ -2,10 +2,12 @@
 import React, { useState } from 'react'
 import {Input} from '../../components/ui/input'
 import UploadPage from '../../components/Evaluploader'
+
 const page = () => {
   const [name,setname]=useState("");
   const [qpid,setqpid]=useState("");
   const handleSubmit= async(e)=>{
+ 
     const data=e.target.qname.value
     setname(data)
     const res= await fetch('/api/questionpaper',{
@@ -16,6 +18,7 @@ const page = () => {
     const dres= await res.json()
     console.log("response"+dres)
     setqpid(dres);
+
   }
   return (
     <div style={{display:'flex',width:'100vw',height:'100vh',backgroundColor:'#e9edc9',justifyContent:'center',alignItems:'center'}}>

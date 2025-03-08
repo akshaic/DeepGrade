@@ -68,7 +68,7 @@ export async function POST(req) {
         })),
       });
 
-      return NextResponse.json({ message: "Answers inserted successfully" });
+      return NextResponse.json({ message: "Evaluation Criteria inserted successfully" });
     } catch (error) {
       return NextResponse.json({ error: "Database insertion failed" +error}, { status: 500 });
     }

@@ -5,8 +5,9 @@ import { useState } from "react";
 export default function UploadPage() {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const handleUpload = async (e) => {
+    setLoading(true)
     e.preventDefault();
     setMessage(""); // Reset message before uploading
 
@@ -35,25 +36,32 @@ export default function UploadPage() {
       console.error("Error uploading file:", error);
       setMessage("❌ Error: Failed to upload the file.");
     }
+    setLoading(false);
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
-      <h1 className="text-2xl font-bold mb-4">Upload a PDF</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen" style={{backgroundColor:'#1b263b'}}>
+      <h1 className="text-2xl font-bold mb-4" style={{color:'white'}}>Upload Answer Sheet</h1>
 
-      <form onSubmit={handleUpload} className="bg-white p-6 rounded-lg shadow-md">
+      <form onSubmit={handleUpload} className=" p-6 rounded-lg shadow-md" style={{borderRadius:'30px',backgroundColor:'#a4c3b2'}}>
         <input
           type="file"
           accept="application/pdf"
           onChange={(e) => setFile(e.target.files[0])}
           className="border p-2 w-full mb-4"
         />
+       {loading? <button
+          type="submit"
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Uploading....
+        </button>:
         <button
           type="submit"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
         >
-          Upload PDF
-        </button>
+          Upload 
+        </button>}
       </form>
 
       {message && (

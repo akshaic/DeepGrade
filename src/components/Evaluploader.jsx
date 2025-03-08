@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-
+import {HashLoader} from "react-spinners"
 export default function UploadPage({name}) {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const handleUpload = async (e) => {
+   
+    setLoading(true); 
     e.preventDefault();
     setMessage(""); // Reset message before uploading
 
@@ -36,6 +38,7 @@ export default function UploadPage({name}) {
       console.error("Error uploading file:", error);
       setMessage("❌ Error: Failed to upload the file.");
     }
+    setLoading(false);
   };
 
   return (
@@ -49,12 +52,18 @@ export default function UploadPage({name}) {
           onChange={(e) => setFile(e.target.files[0])}
           className="border p-2 w-full mb-4"
         />
+        {loading? <div
+          style={{justifyContent:'center',width:'inherit',alignItems:'center',alignContent:'center',justifyItems:'center'}}
+        >
+          
+          <HashLoader color="#023047"/>
+        </div>:
         <button
           type="submit"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
         >
           Upload PDF
-        </button>
+        </button>}
       </form>
 
       {message && (
