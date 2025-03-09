@@ -1,7 +1,9 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Input } from '../../components/ui/input';
 import { ClipboardList, Lock, Eye, ChevronRight, Users, ArrowLeft } from 'lucide-react';
+import { useRouter } from "next/navigation";
+
 
 // Mock data - replace with actual API calls
 const mockPapers = [
@@ -15,22 +17,50 @@ const ReviewPage = () => {
   const [password, setPassword] = useState("");
   const [isVerified, setIsVerified] = useState(false);
   const [students, setStudents] = useState([]);
+  const [std,setstd]=useState([]);
+  const [qp,setqp]=useState([]);
+  const [cpass,setcpass]=useState("");
+  const router= useRouter()
+  useEffect(()=>{
+    const fetchpaper=async()=>{
+      const response=await fetch('/api/getqp');
+      const data=await response.json()
+      setqp(data);
+    }
+    fetchpaper();
+  },[])
 
+  useEffect(() => {
+    if (!selectedPaper?.name) return; // Prevent fetching if name is missing
+
+    const studentgetter = async () => {
+      try {
+        const res = await fetch(`/api/student-qpaper?name=${selectedPaper.name}`);
+        const data = await res.json();
+        setstd(Array.isArray(data) ? data : [data]);
+      } catch (error) {
+        console.error("Error fetching student data:", error);
+      }
+    };
+
+    studentgetter();
+  }, [selectedPaper]);
+console.log(std);
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    // Replace with actual API call
+    
     try {
-      // Mock API call
-      if (password === "test") { // Replace with actual verification
+      
+      if (password === cpass) { 
         setIsVerified(true);
-        // Mock student data - replace with actual API call
         setStudents([
           "John Doe - ID: 001",
           "Jane Smith - ID: 002",
           "Alex Johnson - ID: 003",
           "Sarah Williams - ID: 004",
         ]);
-      }
+      } 
+      console.log("hello"+std);
     } catch (error) {
       console.error("Verification failed:", error);
     }
@@ -61,15 +91,15 @@ const ReviewPage = () => {
                   {mockPapers.find(p => p.id === selectedPaper)?.name}
                 </h3>
               </div>
-              <div className="space-y-4">
-                {students.map((student, index) => (
+              <div key={1} className="space-y-4">
+                {std?.map((index) => (
                   <div
                     key={index}
                     className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-gray-700">{student}</span>
-                      <button className="text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
+                      <span className="font-medium text-gray-700">{index.roll}</span>
+                      <button onClick={()=>{router.push(`/teacherevaluation?name=${encodeURIComponent(selectedPaper.name)}&?roll=${encodeURIComponent(index.roll)}`)}} className="text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
                         View Submission <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>
@@ -106,7 +136,7 @@ const ReviewPage = () => {
               <form onSubmit={handlePasswordSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">
-                    Enter Password for {mockPapers.find(p => p.id === selectedPaper)?.name}
+                    Enter Password for {selectedPaper?.name}
                   </label>
                   <Input
                     type="password"
@@ -141,21 +171,20 @@ const ReviewPage = () => {
             </h2>
           </div>
           <div className="p-8">
-            <div className="space-y-4">
-              {mockPapers.map((paper) => (
+            <div  key={2} className="space-y-4">
+              {qp?.map((paper) => (
                 <div
-                  key={paper.id}
+                  key={paper.name}
                   className="p-6 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
                 >
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-lg font-medium text-gray-900">{paper.name}</h3>
-                      <p className="text-sm text-gray-500">
-                        {paper.submissions} submissions
-                      </p>
+                   
+                      
                     </div>
                     <button
-                      onClick={() => setSelectedPaper(paper.id)}
+                      onClick={() => {setSelectedPaper(paper);setcpass(paper.password)}}
                       className="flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full hover:bg-emerald-200 transition-colors"
                     >
                       <Eye className="w-4 h-4" />

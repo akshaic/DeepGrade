@@ -1,9 +1,13 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pencil, Save, X, MessageCircle, Check } from 'lucide-react';
-
+import { useSearchParams } from "next/navigation";
 const TeacherEvaluationPage = () => {
   // Sample student data - would come from props or API in real implementation
+  const searchParams = useSearchParams();
+  const name = searchParams.get("name");
+  const roll = searchParams.get("roll");
+
   const studentData = {
     name: "Alex Johnson",
     rollNumber: "CS2023054",
@@ -12,7 +16,11 @@ const TeacherEvaluationPage = () => {
 
   const [showSummary, setShowSummary] = useState(false);
 
-  // Sample questions and evaluations with 3 example questions
+  useEffect(()=>{
+    const fetchdetails=async()=>{
+      const res=await fetch(`/api/get-ans?name=${name}&?roll=${roll}`)
+    }
+  })
   const [evaluations, setEvaluations] = useState([
     {
       id: 1,
