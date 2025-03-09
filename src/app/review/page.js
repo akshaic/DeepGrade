@@ -99,7 +99,7 @@ console.log(std);
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-gray-700">{index.roll}</span>
-                      <button onClick={()=>{router.push(`/teacherevaluation?name=${encodeURIComponent(selectedPaper.name)}&?roll=${encodeURIComponent(index.roll)}`)}} className="text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
+                      <button onClick={()=>{router.push(`/teacherevaluation?name=${encodeURIComponent(selectedPaper.name)}&roll=${encodeURIComponent(index.roll)}`)}} className="text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
                         View Submission <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>

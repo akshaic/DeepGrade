@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Pencil, Save, X, MessageCircle, Check } from 'lucide-react';
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 const TeacherEvaluationPage = () => {
   // Sample student data - would come from props or API in real implementation
   const searchParams = useSearchParams();
@@ -15,12 +16,16 @@ const TeacherEvaluationPage = () => {
   };
 
   const [showSummary, setShowSummary] = useState(false);
-
+  const [evals,seteval]=useState([]);
   useEffect(()=>{
     const fetchdetails=async()=>{
-      const res=await fetch(`/api/get-ans?name=${name}&?roll=${roll}`)
+      const pres=await fetch(`/api/get-ans?name=${name}&roll=${roll}`)
+      const res=await pres.json();
+      seteval(res);
     }
-  })
+    fetchdetails()
+  },[])
+  console.log(evals);
   const [evaluations, setEvaluations] = useState([
     {
       id: 1,
@@ -340,6 +345,7 @@ const TeacherEvaluationPage = () => {
   };
 
   return (
+    <Suspense fallback={<p>Loading...</p>}>
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-emerald-100 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <header className="mb-8">
@@ -370,6 +376,7 @@ const TeacherEvaluationPage = () => {
         {renderSummary()}
       </div>
     </div>
+    </Suspense>
   );
 };
 
