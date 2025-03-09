@@ -46,7 +46,7 @@ const TeacherDashboard = () => {
               </div>
               {/* Upload Answer Sheet */}
               <div className="flex flex-col items-center w-full">
-                <button className="w-64 bg-white hover:bg-emerald-50 border-2 border-emerald-600 text-emerald-700 flex flex-col items-center justify-center p-6 rounded-2xl shadow-md transition-all hover:shadow-lg">
+                <button onClick={()=>{router.push('/uploadanswer')}} className="w-64 bg-white hover:bg-emerald-50 border-2 border-emerald-600 text-emerald-700 flex flex-col items-center justify-center p-6 rounded-2xl shadow-md transition-all hover:shadow-lg">
                   <div className="h-14 w-14 bg-emerald-100 rounded-full flex items-center justify-center mb-3">
                     <Upload className="h-7 w-7 text-emerald-600" />
                   </div>
@@ -55,7 +55,7 @@ const TeacherDashboard = () => {
               </div>
               {/* Review Answer Sheets */}
               <div className="flex flex-col items-center w-full">
-                <button className="w-64 bg-white hover:bg-emerald-50 border-2 border-emerald-600 text-emerald-700 flex flex-col items-center justify-center p-6 rounded-2xl shadow-md transition-all hover:shadow-lg">
+                <button onClick={()=>{router.push('/review')}} className="w-64 bg-white hover:bg-emerald-50 border-2 border-emerald-600 text-emerald-700 flex flex-col items-center justify-center p-6 rounded-2xl shadow-md transition-all hover:shadow-lg">
                   <div className="h-14 w-14 bg-emerald-100 rounded-full flex items-center justify-center mb-3">
                     <ClipboardCheck className="h-7 w-7 text-emerald-600" />
                   </div>
