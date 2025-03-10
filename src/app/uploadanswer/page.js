@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Input } from '../../components/ui/input';
 import { ClipboardList, Upload, FileUp, Lock, Check, ArrowLeft } from 'lucide-react';
 
@@ -18,13 +18,21 @@ const UploadPage = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [fileInput, setFileInput] = useState(null);
-
+  const [qp,setqp]=useState([]);
+  useEffect(()=>{
+    const fetchpaper=async()=>{
+      const response=await fetch('/api/getqp');
+      const data=await response.json()
+      setqp(data);
+    }
+    fetchpaper();
+  },[])
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     // Replace with actual API call
     try {
       // Mock API call
-      if (password === "test") { // Replace with actual verification
+      if (password === selectedPaper.password) { // Replace with actual verification
         setIsVerified(true);
       }
     } catch (error) {
@@ -44,11 +52,19 @@ const UploadPage = () => {
     if (!fileInput) return;
 
     setUploading(true);
+    const formData = new FormData();
+    formData.append("pdf", fileInput);
+    formData.append("name", name);
     
-    // Replace with actual API call
     try {
-      // Mock API call - simulate upload delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const response = await fetch('/api/uploadanswer', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to process the PDF');
+      }
       setUploadSuccess(true);
       setUploading(false);
     } catch (error) {
@@ -244,9 +260,9 @@ const UploadPage = () => {
           </div>
           <div className="p-8">
             <div className="space-y-4">
-              {mockPapers.map((paper) => (
+              {qp.map((paper) => (
                 <div
-                  key={paper.id}
+                  key={paper.name}
                   className="p-6 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
                 >
                   <div className="flex items-center justify-between">
@@ -254,7 +270,7 @@ const UploadPage = () => {
                       <h3 className="text-lg font-medium text-gray-900">{paper.name}</h3>
                     </div>
                     <button
-                      onClick={() => setSelectedPaper(paper.id)}
+                      onClick={() => setSelectedPaper(paper)}
                       className="flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full hover:bg-emerald-200 transition-colors"
                     >
                       <FileUp className="w-4 h-4" />
