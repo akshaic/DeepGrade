@@ -5,19 +5,26 @@ import { motion } from 'framer-motion';
 import Button from './Button';
 import { useRouter } from "next/navigation";
 import SignupFormDemo from './Signupform';
+
 const Drawer = () => {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
 
+  // Navigate to the student results page
+  const goToResults = () => {
+    router.push('/studentresults');
+  };
+
   return (
     <div className="relative w-full flex justify-center items-center pt-14">
       {/* Button to toggle drawer */}
-    <div className="flex justify-around w-[50vw]">
-   
- <Button label="Join Now" func={setIsOpen} parameter="true"/>
-  
-    </div>
-         {/* Animated Drawer */}
+      <div className="flex justify-around w-[50vw]">
+        <Button label="Join Now" func={setIsOpen} parameter="true" />
+        {/* New Results Button */}
+        <Button label="View Results" func={goToResults} />
+      </div>
+
+      {/* Animated Drawer */}
       <motion.div
         initial={{ y: '100%' }}
         animate={{ y: isOpen ? '0%' : '100%' }}
@@ -32,9 +39,8 @@ const Drawer = () => {
           >
             ✕
           </button>
-            <SignupFormDemo/>
+          <SignupFormDemo />
           <div className="w-full h-16 rounded-b-full absolute -top-8"></div>
-        
         </div>
       </motion.div>
     </div>
