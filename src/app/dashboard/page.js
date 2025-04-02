@@ -2,11 +2,15 @@
 import React from 'react';
 import { FileText, Upload, ClipboardCheck, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useSession } from "next-auth/react";
 const TeacherDashboard = () => {
   const router=useRouter();
+  const session=useSession()
+  const name=session.data?.user.name
+  console.log(name)
   // Mock teacher data
   const teacher = {
-    name: "Dr. Sarah Johnson",
+    name: "hel",
     staffId: "T-2025-042"
   };
   
@@ -18,7 +22,7 @@ const TeacherDashboard = () => {
           <User className="h-7 w-7 text-emerald-600" />
         </div>
         <div>
-          <p className="font-medium text-gray-800 text-lg">{teacher.name}</p>
+          <p className="font-medium text-gray-800 text-lg">{name}</p>
           <p className="text-gray-500">{teacher.staffId}</p>
         </div>
       </div>

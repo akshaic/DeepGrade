@@ -40,13 +40,18 @@ const EvaluationCard = ({ evaluation, toggleEditMark, toggleAddRemark, updateMar
         <h3 className="text-lg font-semibold text-white">Question {evaluation.id}</h3>
       </div>
       
+      
       <div className="p-4">
         <p className="font-medium text-gray-800 mb-4">{evaluation.questionText}</p>
-        
+        <p className="font-medium text-gray-800 mb-4">{evaluation.questionDetails}</p>
         {/* Student Response */}
         <div className="bg-gray-50 p-4 rounded-lg mb-4">
           <h4 className="text-sm font-semibold text-gray-700 mb-2">Student Response:</h4>
           <p className="text-gray-800">{evaluation.studentResponse}</p>
+        </div>
+        <div className="bg-gray-50 p-4 rounded-lg mb-4">
+          <h4 className="text-sm font-semibold text-gray-700 mb-2">Evaluation Criteria:</h4>
+          <p className="text-gray-800">{evaluation.evaluationCriteria}</p>
         </div>
         
         {/* AI Remark */}
@@ -101,7 +106,7 @@ const EvaluationCard = ({ evaluation, toggleEditMark, toggleAddRemark, updateMar
                 </div>
               </div>
             ) : (
-              <span className="font-medium text-emerald-600 text-lg">{evaluation.mark} / 10</span>
+              <span className="font-medium text-emerald-600 text-lg">{evaluation.mark} / 5</span>
             )}
           </div>
           
@@ -157,17 +162,11 @@ const EvaluationCard = ({ evaluation, toggleEditMark, toggleAddRemark, updateMar
   );
 };
 
-const TeacherEvaluationPage = () => {
-  // Sample student data - would come from props or API in real implementation
+// Create a client component that uses useSearchParams
+const TeacherEvaluationContent = () => {
   const searchParams = useSearchParams();
   const name = searchParams.get("name");
   const roll = searchParams.get("roll");
-
-  const studentData = {
-    name: "Alex Johnson",
-    rollNumber: "CS2023054",
-    questionPaperCode: "CS301-MIDTERM-2025"
-  };
 
   const [showSummary, setShowSummary] = useState(false);
   const [evaluations, setEvaluations] = useState([]);
@@ -175,28 +174,48 @@ const TeacherEvaluationPage = () => {
   useEffect(() => {
     const fetchEvaluations = async () => {
       try {
-        const res = await fetch(`/api/get-ans?name=${name}&roll=${roll}`);
-        const data = await res.json();
+        // Fetch both resources in parallel
+        const [ansRes, qnsRes] = await Promise.all([
+          fetch(`/api/get-ans?name=${name}&roll=${roll}`),
+          fetch(`/api/get-qns?name=${name}`)
+        ]);
         
-        // Transform data
-        const formattedData = data?.map((item, index) => ({
-          id: index + 1, // Assign unique IDs
-          questionText: `Question ${item.q_no}`, // Format question text
-          studentResponse: item.answer, // Map answer
-          mark: item.grade, // Map grade
-          teacherRemark: "", // Empty remark initially
-          isEditingMark: false,
-          isAddingRemark: false
-        }));
-
+        const ansData = await ansRes.json();
+        const qnsData = await qnsRes.json();
+        
+        // Create a map for question details lookup
+        // The API doesn't seem to return q_no, so we'll use index+1 as q_no
+        const questionMap = {};
+        qnsData?.forEach((qItem, index) => {
+          questionMap[index + 1] = qItem;
+        });
+        
+        // Combine the data
+        const formattedData = ansData?.map((item, index) => {
+          const questionDetails = questionMap[item.q_no] || {};
+          
+          return {
+            id: index + 1,
+            q_no: item.q_no,
+            questionText: `Question ${item.q_no}`,
+            questionDetails: questionDetails.question || "",
+            evaluationCriteria: questionDetails.evaluationCriteria || "",
+            studentResponse: item.answer,
+            mark: item.grade,
+            teacherRemark: "",
+            isEditingMark: false,
+            isAddingRemark: false
+          };
+        });
+        
         setEvaluations(formattedData);
       } catch (error) {
         console.error("Error fetching evaluations:", error);
       }
     };
-
+    
     fetchEvaluations();
-  }, []);
+  }, [name, roll]);
 
   // Toggle editing states
   const toggleEditMark = (id) => {
@@ -298,7 +317,7 @@ const TeacherEvaluationPage = () => {
                           {evaluation.questionText}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-emerald-600">
-                          {evaluation.mark} / 10
+                          {evaluation.mark} / 5
                         </td>
                       </tr>
                     ))}
@@ -336,46 +355,55 @@ const TeacherEvaluationPage = () => {
   };
 
   return (
-    <Suspense fallback={<p>Loading...</p>}>
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-emerald-100 py-8 px-4">
-        <div className="max-w-4xl mx-auto">
-          <header className="mb-8">
-            <h1 className="text-3xl font-bold text-emerald-800">
-              Roll <span className="text-emerald-600">({roll})</span>
-            </h1>
-            <p className="text-lg text-emerald-600">
-              Question Paper: <span className="font-medium">{name}</span>
-            </p>
-          </header>
-          
-          {/* Evaluations List */}
-          <div className="space-y-6">
-            {evaluations.map(evaluation => (
-              <EvaluationCard 
-                key={evaluation.id}
-                evaluation={evaluation}
-                toggleEditMark={toggleEditMark}
-                toggleAddRemark={toggleAddRemark}
-                updateMark={updateMark}
-                updateRemark={updateRemark}
-              />
-            ))}
-          </div>
-          
-          {/* Submit Button */}
-          <div className="mt-8 flex justify-end">
-            <button 
-              onClick={handleFinalize}
-              className="px-6 py-3 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-            >
-              Finalize Evaluation
-            </button>
-          </div>
-          
-          {/* Summary Modal */}
-          {renderSummary()}
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-emerald-100 py-8 px-4">
+      <div className="max-w-4xl mx-auto">
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold text-emerald-800">
+            Roll <span className="text-emerald-600">({roll})</span>
+          </h1>
+          <p className="text-lg text-emerald-600">
+            Question Paper: <span className="font-medium">{name}</span>
+          </p>
+        </header>
+        
+        {/* Evaluations List */}
+        <div className="space-y-6">
+          {evaluations.map(evaluation => (
+            <EvaluationCard 
+              key={evaluation.id}
+              evaluation={evaluation}
+              toggleEditMark={toggleEditMark}
+              toggleAddRemark={toggleAddRemark}
+              updateMark={updateMark}
+              updateRemark={updateRemark}
+            />
+          ))}
         </div>
+        
+        {/* Submit Button */}
+        <div className="mt-8 flex justify-end">
+          <button 
+            onClick={handleFinalize}
+            className="px-6 py-3 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+          >
+            Finalize Evaluation
+          </button>
+        </div>
+        
+        {/* Summary Modal */}
+        {renderSummary()}
       </div>
+    </div>
+  );
+};
+
+// Main component with Suspense boundary
+const TeacherEvaluationPage = () => {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
+      <p className="text-lg font-medium text-emerald-600">Loading evaluation data...</p>
+    </div>}>
+      <TeacherEvaluationContent />
     </Suspense>
   );
 };

@@ -54,7 +54,7 @@ const UploadPage = () => {
     setUploading(true);
     const formData = new FormData();
     formData.append("pdf", fileInput);
-    formData.append("name", name);
+    formData.append("name", selectedPaper.name);
     
     try {
       
@@ -62,6 +62,7 @@ const UploadPage = () => {
         method: 'POST',
         body: formData,
       });
+      const data = await response.json();
       if (!response.ok) {
         throw new Error(data.error || 'Failed to process the PDF');
       }
