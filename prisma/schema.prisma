@@ -21,6 +21,8 @@ model questionpaper {
   password String
   questions questiondetails[]
   studentanswers studentanswers[]
+
+  query query[]
 }
 
 model questiondetails {
@@ -39,6 +41,8 @@ model Student {
   email     String      @unique
   roll      String     @unique
   answers  studentanswers[]
+
+  query query[]
 }
 
 model studentanswers {
@@ -54,3 +58,15 @@ model studentanswers {
     @@map("studentanswers")
     @@unique([name, roll, q_no])
 }
+
+model query {
+  query_id String   @id @default(uuid())  // Unique Query ID
+  name     String                            // Foreign key to QuestionPaper
+  roll     String                            // Foreign key to Student
+  query    String                            // The query text
+  createdAt DateTime @default(now())          // Timestamp for when the query was raised
+
+  questionPaper questionpaper @relation(fields: [name], references: [name])
+  student       Student       @relation(fields: [roll], references: [roll])
+}
+
