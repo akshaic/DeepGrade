@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { FileText, MessageCircle, User, Calendar, CheckCircle } from 'lucide-react';
 
 export default function StudentQueriesPage() {
@@ -11,7 +11,9 @@ export default function StudentQueriesPage() {
   const [resolving, setResolving] = useState({});
   const searchParams = useSearchParams();
   const roll = searchParams.get('roll');
-
+  const name = searchParams.get('name'); // Get name from query params
+  const router = useRouter();
+  
   useEffect(() => {
     if (!roll) return;
     fetchQueries();
@@ -63,9 +65,13 @@ export default function StudentQueriesPage() {
     }
   };
 
+  const handleCheckPaper = () => {
+    router.push(`/teacherevaluation?name=final&roll=${roll}`);
+  };
+
   // Mock student data
   const student = {
-    name: "Student",
+    name: name || "Student",
     email: roll ? queries[0]?.student?.email : "Loading...",
     rollNumber: roll || "Loading..."
   };
@@ -88,7 +94,7 @@ export default function StudentQueriesPage() {
           <User className="h-7 w-7 text-emerald-600" />
         </div>
         <div>
-          <p className="font-medium text-gray-800 text-lg">{student.email || "Student"}</p>
+          <p className="font-medium text-gray-800 text-lg">{student.name}</p>
           <p className="text-gray-500">{roll}</p>
         </div>
       </div>
@@ -173,6 +179,16 @@ export default function StudentQueriesPage() {
                     </div>
                   </div>
                 ))}
+                
+                {/* Centered Check Paper button */}
+                <div className="flex justify-center mt-6">
+                  <button 
+                    onClick={handleCheckPaper}
+                    className="flex items-center bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg transition-colors text-lg font-medium"
+                  >
+                    Check Paper
+                  </button>
+                </div>
               </div>
             )}
           </div>

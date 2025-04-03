@@ -16,9 +16,14 @@ const ReviewPage = () => {
 
   useEffect(() => {
     const fetchPapers = async () => {
-      const response = await fetch("/api/getqp");
-      const data = await response.json();
-      setQp(data);
+      try {
+        const response = await fetch("/api/getqp");
+        const data = await response.json();
+        setQp(data);
+      } catch (error) {
+        console.error("Error fetching papers:", error);
+        setQp([]);
+      }
     };
     fetchPapers();
   }, []);
@@ -28,11 +33,24 @@ const ReviewPage = () => {
 
     const fetchStudents = async () => {
       try {
-        const res = await fetch(`/api/student-qpaper?name=${selectedPaper.name}`);
+        const res = await fetch(`/api/student-qpaper?name=${encodeURIComponent(selectedPaper.name)}`);
         const data = await res.json();
-        setStd(Array.isArray(data) ? data : [data]);
+        
+        // Transform data based on API response format
+        if (Array.isArray(data)) {
+          // If data is already an array of roll numbers
+          const formattedData = data.map(roll => typeof roll === 'object' ? roll : { roll });
+          setStd(formattedData);
+        } else if (data.error) {
+          console.error("API error:", data.error);
+          setStd([]);
+        } else {
+          // Convert to array format expected by the UI
+          setStd([typeof data === 'object' ? data : { roll: data }]);
+        }
       } catch (error) {
         console.error("Error fetching student data:", error);
+        setStd([]);
       }
     };
 
@@ -46,8 +64,10 @@ const ReviewPage = () => {
       const counts = {};
       await Promise.all(
         std.map(async (student) => {
+          if (!student || !student.roll) return;
+          
           try {
-            const res = await fetch(`/api/get-query-count?roll=${student.roll}`);
+            const res = await fetch(`/api/get-query-count?roll=${encodeURIComponent(student.roll)}`);
             const data = await res.json();
             counts[student.roll] = data.count || 0;
           } catch (error) {
@@ -67,6 +87,8 @@ const ReviewPage = () => {
     e.preventDefault();
     if (password === cpass) {
       setIsVerified(true);
+    } else {
+      alert("Incorrect password. Please try again.");
     }
   };
 
@@ -90,42 +112,54 @@ const ReviewPage = () => {
               </h2>
             </div>
             <div className="p-8">
+              <div className="mb-6">
+                <h3 className="text-lg font-medium text-gray-900">
+                  {selectedPaper?.name}
+                </h3>
+              </div>
               <div className="space-y-4">
-                {std?.map((student) => (
-                  <div
-                    key={student.roll}
-                    className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-gray-700">{student.roll}</span>
+                {std?.length > 0 ? (
+                  std.map((student) => (
+                    <div
+                      key={`student-${student.roll}`}
+                      className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-gray-700">{student.roll}</span>
 
-                        {/* 🔴 Red dot button now links to `studentqueries` */}
-                        {queryCounts[student.roll] > 0 && (
-                          <button
-                            onClick={() =>
-                              router.push(`/studentqueries?roll=${encodeURIComponent(student.roll)}`)
-                            }
-                            className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full"
-                          >
-                            {queryCounts[student.roll]}
-                          </button>
-                        )}
+                          {/* Query count indicator */}
+                          {queryCounts[student.roll] > 0 && (
+                            <button
+                              onClick={() =>
+                                router.push(`/studentqueries?roll=${encodeURIComponent(student.roll)}&name=${selectedPaper?.name}`)
+                              }
+                              className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full"
+                              title={`${queryCounts[student.roll]} unresolved queries`}
+                            >
+                              {queryCounts[student.roll]}
+                            </button>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={() =>
+                            router.push(
+                              `/teacherevaluation?name=${encodeURIComponent(selectedPaper.name)}&roll=${encodeURIComponent(student.roll)}`
+                            )
+                          }
+                          className="text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+                        >
+                          View Submission <ChevronRight className="w-4 h-4" />
+                        </button>
                       </div>
-
-                      <button
-                        onClick={() =>
-                          router.push(
-                            `/teacherevaluation?name=${encodeURIComponent(selectedPaper.name)}&roll=${encodeURIComponent(student.roll)}`
-                          )
-                        }
-                        className="text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
-                      >
-                        View Submission <ChevronRight className="w-4 h-4" />
-                      </button>
                     </div>
+                  ))
+                ) : (
+                  <div className="text-center p-6">
+                    <p className="text-gray-500">No student submissions found</p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>
@@ -192,27 +226,33 @@ const ReviewPage = () => {
             </h2>
           </div>
           <div className="p-8">
-            <div className="space-y-4">
-              {qp?.map((paper) => (
-                <div
-                  key={paper.name}
-                  className="p-6 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
-                >
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-medium text-gray-900">{paper.name}</h3>
-                    <button
-                      onClick={() => {
-                        setSelectedPaper(paper);
-                        setCpass(paper.password);
-                      }}
-                      className="flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full hover:bg-emerald-200 transition-colors"
-                    >
-                      <Eye className="w-4 h-4" /> Check
-                    </button>
+            {qp?.length > 0 ? (
+              <div className="space-y-4">
+                {qp.map((paper) => (
+                  <div
+                    key={`paper-${paper.name}`}
+                    className="p-6 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-medium text-gray-900">{paper.name}</h3>
+                      <button
+                        onClick={() => {
+                          setSelectedPaper(paper);
+                          setCpass(paper.password);
+                        }}
+                        className="flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full hover:bg-emerald-200 transition-colors"
+                      >
+                        <Eye className="w-4 h-4" /> Check
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center p-8">
+                <p className="text-gray-500">No question papers available</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
