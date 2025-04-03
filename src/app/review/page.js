@@ -1,68 +1,72 @@
-"use client"
-import React, { useState,useEffect } from 'react';
-import { Input } from '../../components/ui/input';
-import { ClipboardList, Lock, Eye, ChevronRight, Users, ArrowLeft } from 'lucide-react';
+"use client";
+import React, { useState, useEffect } from "react";
+import { Input } from "../../components/ui/input";
+import { ClipboardList, Lock, Eye, ChevronRight, Users, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-
-
-// Mock data - replace with actual API calls
-const mockPapers = [
-  { id: "qp1", name: "Mathematics Final", submissions: 45 },
-  { id: "qp2", name: "Physics Midterm", submissions: 32 },
-  { id: "qp3", name: "Chemistry Quiz", submissions: 28 },
-];
 
 const ReviewPage = () => {
   const [selectedPaper, setSelectedPaper] = useState(null);
   const [password, setPassword] = useState("");
   const [isVerified, setIsVerified] = useState(false);
-  const [students, setStudents] = useState([]);
-  const [std,setstd]=useState([]);
-  const [qp,setqp]=useState([]);
-  const [cpass,setcpass]=useState("");
-  const router= useRouter()
-  useEffect(()=>{
-    const fetchpaper=async()=>{
-      const response=await fetch('/api/getqp');
-      const data=await response.json()
-      setqp(data);
-    }
-    fetchpaper();
-  },[])
+  const [std, setStd] = useState([]);
+  const [qp, setQp] = useState([]);
+  const [queryCounts, setQueryCounts] = useState({});
+  const [cpass, setCpass] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
-    if (!selectedPaper?.name) return; // Prevent fetching if name is missing
+    const fetchPapers = async () => {
+      const response = await fetch("/api/getqp");
+      const data = await response.json();
+      setQp(data);
+    };
+    fetchPapers();
+  }, []);
 
-    const studentgetter = async () => {
+  useEffect(() => {
+    if (!selectedPaper?.name) return;
+
+    const fetchStudents = async () => {
       try {
         const res = await fetch(`/api/student-qpaper?name=${selectedPaper.name}`);
         const data = await res.json();
-        setstd(Array.isArray(data) ? data : [data]);
+        setStd(Array.isArray(data) ? data : [data]);
       } catch (error) {
         console.error("Error fetching student data:", error);
       }
     };
 
-    studentgetter();
+    fetchStudents();
   }, [selectedPaper]);
-console.log(std);
+
+  useEffect(() => {
+    const fetchQueryCounts = async () => {
+      if (std.length === 0) return;
+
+      const counts = {};
+      await Promise.all(
+        std.map(async (student) => {
+          try {
+            const res = await fetch(`/api/get-query-count?roll=${student.roll}`);
+            const data = await res.json();
+            counts[student.roll] = data.count || 0;
+          } catch (error) {
+            console.error("Error fetching query count for", student.roll, error);
+            counts[student.roll] = 0;
+          }
+        })
+      );
+
+      setQueryCounts(counts);
+    };
+
+    fetchQueryCounts();
+  }, [std]);
+
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    
-    try {
-      
-      if (password === cpass) { 
-        setIsVerified(true);
-        setStudents([
-          "John Doe - ID: 001",
-          "Jane Smith - ID: 002",
-          "Alex Johnson - ID: 003",
-          "Sarah Williams - ID: 004",
-        ]);
-      } 
-      console.log("hello"+std);
-    } catch (error) {
-      console.error("Verification failed:", error);
+    if (password === cpass) {
+      setIsVerified(true);
     }
   };
 
@@ -86,20 +90,37 @@ console.log(std);
               </h2>
             </div>
             <div className="p-8">
-              <div className="mb-6">
-                <h3 className="text-lg font-medium text-gray-900">
-                  {mockPapers.find(p => p.id === selectedPaper)?.name}
-                </h3>
-              </div>
-              <div key={1} className="space-y-4">
-                {std?.map((index) => (
+              <div className="space-y-4">
+                {std?.map((student) => (
                   <div
-                    key={index}
+                    key={student.roll}
                     className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-gray-700">{index.roll}</span>
-                      <button onClick={()=>{router.push(`/teacherevaluation?name=${encodeURIComponent(selectedPaper.name)}&roll=${encodeURIComponent(index.roll)}`)}} className="text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-gray-700">{student.roll}</span>
+
+                        {/* 🔴 Red dot button now links to `studentqueries` */}
+                        {queryCounts[student.roll] > 0 && (
+                          <button
+                            onClick={() =>
+                              router.push(`/studentqueries?roll=${encodeURIComponent(student.roll)}`)
+                            }
+                            className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full"
+                          >
+                            {queryCounts[student.roll]}
+                          </button>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={() =>
+                          router.push(
+                            `/teacherevaluation?name=${encodeURIComponent(selectedPaper.name)}&roll=${encodeURIComponent(student.roll)}`
+                          )
+                        }
+                        className="text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+                      >
                         View Submission <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>
@@ -171,24 +192,22 @@ console.log(std);
             </h2>
           </div>
           <div className="p-8">
-            <div  key={2} className="space-y-4">
+            <div className="space-y-4">
               {qp?.map((paper) => (
                 <div
                   key={paper.name}
                   className="p-6 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
                 >
                   <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900">{paper.name}</h3>
-                   
-                      
-                    </div>
+                    <h3 className="text-lg font-medium text-gray-900">{paper.name}</h3>
                     <button
-                      onClick={() => {setSelectedPaper(paper);setcpass(paper.password)}}
+                      onClick={() => {
+                        setSelectedPaper(paper);
+                        setCpass(paper.password);
+                      }}
                       className="flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full hover:bg-emerald-200 transition-colors"
                     >
-                      <Eye className="w-4 h-4" />
-                      Check
+                      <Eye className="w-4 h-4" /> Check
                     </button>
                   </div>
                 </div>
