@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📝 AI-Powered Handwritten Answer Sheet Evaluator
 
-## Getting Started
+An AI-driven platform that automates the manual evaluation of handwritten answer sheets.This system enhances grading accuracy, fairness, and efficiency while offering powerful analytics and feedback capabilities.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- ✍️ **Handwritten Text Recognition** using Google Vision OCR  
+- 🧠 **Context-Aware Answer Evaluation** powered by Gemini API (Semantic Analysis)  
+- 🔍 **Synonym & Phrase Matching**, Sentence Structure, and Logic Coherence Detection  
+- 📷 **Mobile/Web Upload** of Answer Sheets  
+- ➕ **Mathematical Expression Parsing**  
+- 📊 **Performance Analytics & Adaptive Learning Insights**  
+- 📥 **Dynamic Feedback Reports** for Students  
+- ☁️ **Cloud-based Infrastructure** with PostgreSQL & Real-time Processing  
+
+## 🖼️ System Architecture
+
+```
+User Upload (Web/Mobile) 
+      │
+      ▼
+Preprocessing & Image Cleanup
+      │
+      ▼
+Google Vision OCR → Extract Text
+      │
+      ▼
+Gemini API → Semantic Evaluation
+      │
+      ▼
+Intelligent Grading Logic (Keyword + Context)
+      │
+      ├─> Math Expression Recognition
+      │
+      ├─> Feedback Generator
+      │
+      ▼
+Analytics Dashboard + Reports + PostgreSQL Storage
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ⚙️ Technologies Used
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Tech                | Purpose                                  |
+|---------------------|-------------------------------------------|
+| Google Vision OCR   | Handwritten Text Recognition              |
+| Gemini API (NLP)    | Semantic Analysis of Answers              |
+| PostgreSQL          | Secure Data Storage                       |
+| NEXT js    | Backend Server (API & Logic)              |
+| NEXT js    | Frontend (Web / Mobile Interfaces)        |
+| NEXT js  | RESTful API Layer                         |
+|                 |
+|      |    |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Installation & Setup
 
-## Learn More
+1. **Clone the Repository**
+```bash
+git clone https://github.com/AKHIL-DyC/DeepGrade.git
 
-To learn more about Next.js, take a look at the following resources:
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. **Install Dependencies**
+```bash
+npm install
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. **Configure Environment Variables**
+```
+GOOGLE_VISION_API_KEY=your_key_here
+GEMINI_API_KEY=your_key_here
+DATABASE_URL=postgres://...
+```
 
-## Deploy on Vercel
+4. **Run the app**
+```bash
+npm run dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📄 Example Workflow
+
+1. **Teacher uploads the question paper and evaluation criteria** via the portal.
+2. **Student uploads a scanned handwritten answer sheet** through the web or mobile interface.
+3. The system performs **OCR** using Google Vision to extract handwritten text.
+4. Extracted answers are **contextually evaluated** using Gemini NLP, based on:
+   - The uploaded **question paper**
+   - The **evaluation criteria**
+5. The system assigns marks considering **semantic meaning, sentence structure, synonyms, and logic**.
+6. Personalized feedback and performance reports are generated for the student.
+7. Educators and admins access detailed analytics to refine the evaluation.
+
+![Workflow Diagram](./assets/workflow.png)
+
+
+
+
+## ✅ Future Improvements
+
+- Voice-to-text feedback for accessibility.  
+- Multi-language answer sheet support.  
+- Educator AI assistant for instant doubt resolution.  
+- AI-based cheating/plagiarism detection.  
+
+## 🤝 Contributing
+
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+
+
