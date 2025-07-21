@@ -89,7 +89,7 @@ npm run dev
 6. Personalized feedback and performance reports are generated for the student.
 7. Educators and admins access detailed analytics to refine the evaluation.
 
-![Workflow Diagram](./assets/workflow.png)
+![Workflow Diagram](./250721_11h19m47s_screenshot.png)
 
 
 
